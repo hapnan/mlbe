@@ -7,6 +7,7 @@ import numpy as np
 from catboost import CatBoostClassifier # type: ignore
 from sklearn.base import BaseEstimator, TransformerMixin
 import uvicorn
+import sys
 
 
 # Custom Transformers (needed for loading saved models)
@@ -59,6 +60,12 @@ class CyclicalFeatureTransformer(BaseEstimator, TransformerMixin):
 
     def get_feature_names_out(self, input_features=None):
         return ['month_sin', 'month_cos', 'day_sin', 'day_cos']
+
+
+# CRITICAL: Register custom transformers in __main__ module for joblib unpickling
+# This ensures joblib can find these classes when loading the pickled models
+sys.modules['__main__'].CustomImputer = CustomImputer
+sys.modules['__main__'].CyclicalFeatureTransformer = CyclicalFeatureTransformer
 
 # Initialize FastAPI app
 app = FastAPI(
